@@ -1,0 +1,86 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: blogapp-495814
+  REGION: asia-south1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+
+      # ===== USER SERVICE =====
+      - name: Build User Service
+        run: |
+          docker build -t gcr.io/$PROJECT_ID/user-service ./services/user_service
+          docker push gcr.io/$PROJECT_ID/user-service
+
+      - name: Deploy User Service
+        run: |
+          gcloud run deploy user-service \
+          --image gcr.io/$PROJECT_ID/user-service \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --set-env-vars DB_HOST=${{ secrets.DB_HOST }},DB_USER=postgres,DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=blog_db,JWT_SECRET=secretkey
+
+      # ===== POST SERVICE =====
+      - name: Build Post Service
+        run: |
+          docker build -t gcr.io/$PROJECT_ID/post-service ./services/post_service
+          docker push gcr.io/$PROJECT_ID/post-service
+
+      - name: Deploy Post Service
+        run: |
+          gcloud run deploy post-service \
+          --image gcr.io/$PROJECT_ID/post-service \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --set-env-vars DB_HOST=${{ secrets.DB_HOST }},DB_USER=postgres,DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=blog_db,JWT_SECRET=secretkey
+
+      # ===== COMMENT SERVICE =====
+      - name: Build Comment Service
+        run: |
+          docker build -t gcr.io/$PROJECT_ID/comment-service ./services/comment_service
+          docker push gcr.io/$PROJECT_ID/comment-service
+
+      - name: Deploy Comment Service
+        run: |
+          gcloud run deploy comment-service \
+          --image gcr.io/$PROJECT_ID/comment-service \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --set-env-vars DB_HOST=${{ secrets.DB_HOST }},DB_USER=postgres,DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=blog_db,JWT_SECRET=secretkey
+
+      # ===== GATEWAY =====
+      - name: Build Gateway
+        run: |
+          docker build -t gcr.io/$PROJECT_ID/gateway ./gateway
+          docker push gcr.io/$PROJECT_ID/gateway
+
+      - name: Deploy Gateway
+        run: |
+          gcloud run deploy gateway \
+          --image gcr.io/$PROJECT_ID/gateway \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --set-env-vars USER_SERVICE_URL=${{ secrets.USER_URL }},POST_SERVICE_URL=${{ secrets.POST_URL }},COMMENT_SERVICE_URL=${{ secrets.COMMENT_URL }}

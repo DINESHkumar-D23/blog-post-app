@@ -1,0 +1,25 @@
+{
+  "name": "post_service",
+  "version": "1.0.0",
+  "description": "Post microservice for blog app",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.1",
+    "express-rate-limit": "^8.5.1",
+    "i": "^0.3.7",
+    "joi": "^18.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

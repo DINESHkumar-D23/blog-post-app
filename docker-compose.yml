@@ -1,0 +1,59 @@
+services:
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: DinK@23
+      POSTGRES_DB: blog_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  user_service:
+    build: ./services/user_service
+    ports:
+      - "3000:3000"
+    environment:
+      DB_PASSWORD: DinK@23
+      JWT_SECRET: secretkey
+    depends_on:
+      - postgres
+
+  post_service:
+    build: ./services/post_service
+    ports:
+      - "4000:4000"
+    environment:
+      DB_PASSWORD: DinK@23
+      JWT_SECRET: secretkey
+    depends_on:
+      - postgres
+
+  comment_service:
+    build: ./services/comment_service
+    ports:
+      - "6000:6000"
+    environment:
+      DB_PASSWORD: DinK@23
+      JWT_SECRET: secretkey
+    depends_on:
+      - postgres
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "5000:5000"
+    depends_on:
+      - user_service
+      - post_service
+      - comment_service
+      - redis
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
