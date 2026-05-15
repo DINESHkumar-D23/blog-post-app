@@ -24,6 +24,9 @@ jobs:
 
       - name: Configure Docker
         run: gcloud auth configure-docker
+        
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
 
       # ===== USER SERVICE =====
       - name: Build User Service
@@ -83,4 +86,4 @@ jobs:
           --region $REGION \
           --platform managed \
           --allow-unauthenticated \
-          --set-env-vars USER_SERVICE_URL=${{ secrets.USER_URL }},POST_SERVICE_URL=${{ secrets.POST_URL }},COMMENT_SERVICE_URL=${{ secrets.COMMENT_URL }}
+          --set-env-vars=USER_SERVICE_URL=${{ secrets.USER_SERVICE_URL }},POST_SERVICE_URL=${{ secrets.POST_SERVICE_URL }},COMMENT_SERVICE_URL=${{ secrets.COMMENT_SERVICE_URL }}
