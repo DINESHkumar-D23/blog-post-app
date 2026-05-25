@@ -418,16 +418,17 @@ const COMMENT_SERVICE = process.env.COMMENT_SERVICE_URL;
 
 // ================= AXIOS INSTANCE =================
 const api = axios.create({
-    timeout: 4000
+    timeout: 30000  // 30s — Render free tier cold start can take up to 30s
 });
 
 // ================= RETRY WRAPPER =================
-const requestWithRetry = async (fn, retries = 1) => {
+const requestWithRetry = async (fn, retries = 2) => {
     try {
         return await fn();
     } catch (err) {
         if (retries > 0) {
             logger.warn("Retrying request...");
+            await new Promise(r => setTimeout(r, 1000)); // wait 1s between retries
             return requestWithRetry(fn, retries - 1);
         }
         throw err;
