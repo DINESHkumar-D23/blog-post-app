@@ -11,6 +11,10 @@ CREATE TABLE posts (
     title TEXT NOT NULL,
     content TEXT NOT NULL,
     author_id INTEGER,
+    image_url VARCHAR(500),
+    tags VARCHAR(500),
+    category VARCHAR(100),
+    is_featured BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -1,0 +1,243 @@
+/* ══════════════════════════════════════════
+   NEO-BRUTALISM NAVBAR
+   Palette: #FAF3E1 · #F5E7C6 · #FF6D1F · #222222
+══════════════════════════════════════════ */
+
+.navbar-premium {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--black);
+  border-bottom: 4px solid var(--orange);
+  padding: 0;
+  animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.navbar-container-premium {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 68px;
+}
+
+/* ── Brand / Logo ── */
+.navbar-brand-premium { flex-shrink: 0; }
+
+.logo-btn-premium {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  transition: transform 0.1s ease;
+}
+
+.logo-btn-premium:hover {
+  transform: translate(-2px, -2px);
+}
+
+.logo-icon {
+  font-size: 1.4rem;
+}
+
+.logo-text {
+  font-family: 'Syne', 'Space Grotesk', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--orange);
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+
+/* ── Mobile Hamburger ── */
+.mobile-menu-btn-premium {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1001;
+}
+
+.mobile-menu-btn-premium span {
+  width: 24px;
+  height: 3px;
+  background: var(--cream-light);
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn-premium:hover span {
+  background: var(--orange);
+}
+
+/* ── Nav Menu ── */
+.navbar-menu-premium {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.navbar-menu-premium li { position: relative; }
+
+.nav-link-premium {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--cream-light);
+  transition: all 0.1s ease;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.nav-link-premium::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: var(--orange);
+  transition: width 0.2s ease;
+}
+
+.nav-link-premium:hover {
+  color: var(--orange);
+}
+
+.nav-link-premium:hover::after {
+  width: 100%;
+}
+
+.nav-link-premium.active {
+  color: var(--orange);
+}
+
+.nav-link-premium.active::after {
+  width: 100%;
+}
+
+/* ── Sign Up Button ── */
+.signup-btn-premium {
+  background: var(--orange) !important;
+  color: var(--white) !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 1.2rem !important;
+  border: 2px solid var(--cream-light) !important;
+  box-shadow: 3px 3px 0px var(--cream-light) !important;
+  border-radius: 4px !important;
+  transition: all 0.1s ease !important;
+  letter-spacing: 0.05em;
+}
+
+.signup-btn-premium::after {
+  display: none !important;
+}
+
+.signup-btn-premium:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px var(--cream-light) !important;
+  color: var(--white) !important;
+}
+
+.signup-btn-premium:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px var(--cream-light) !important;
+}
+
+/* ── Logout Button ── */
+.logout-btn-premium {
+  color: #ff8080 !important;
+  border: 2px solid #ff8080 !important;
+  border-radius: 4px !important;
+  font-weight: 700;
+  box-shadow: 3px 3px 0px #ff8080 !important;
+}
+
+.logout-btn-premium::after {
+  display: none !important;
+}
+
+.logout-btn-premium:hover {
+  background: rgba(255,128,128,0.12) !important;
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #ff8080 !important;
+  color: #ffaaaa !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .mobile-menu-btn-premium { display: flex; }
+
+  .navbar-container-premium { padding: 0 1.25rem; }
+
+  .navbar-menu-premium {
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: var(--black);
+    border-bottom: 4px solid var(--orange);
+    flex-direction: column;
+    gap: 0;
+    padding: 0.5rem 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    align-items: stretch;
+  }
+
+  .navbar-menu-premium.active { max-height: 400px; }
+
+  .navbar-menu-premium li { width: 100%; }
+
+  .nav-link-premium {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0;
+    text-align: left;
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .signup-btn-premium {
+    margin: 0.5rem 1rem !important;
+    width: calc(100% - 2rem) !important;
+    text-align: center !important;
+    border-radius: 4px !important;
+    display: block !important;
+  }
+
+  .logout-btn-premium {
+    margin: 0.5rem 1rem !important;
+    width: calc(100% - 2rem) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container-premium { height: 60px; padding: 0 1rem; }
+  .navbar-menu-premium { top: 60px; }
+  .logo-text { font-size: 1.15rem; }
+}

@@ -370,16 +370,39 @@ import axios from "axios";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import logger from "./utils/logger.js";
+import client from "prom-client";
 
 dotenv.config();
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(express.json());
+
+// ================= CORS =================
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
+// ================= METRICS =================
+client.collectDefaultMetrics();
+
+const httpRequests = new client.Counter({
+    name: "http_requests_total",
+    help: "Total number of HTTP requests"
+});
 
 // ================= LOGGER =================
 app.use((req, res, next) => {
+    httpRequests.inc();
     logger.info(`${req.method} ${req.url}`);
     next();
+    
 });
 
 // ================= RATE LIMIT =================
@@ -421,21 +444,34 @@ const success = (res, data) => {
 };
 
 const failure = (res, err, fallbackMsg = "Internal error") => {
-    logger.error(err.message);
+    console.error("FULL ERROR:", err.response?.data || err.message);
+
     res.status(err.response?.status || 500).json({
         success: false,
         data: null,
-        error: err.response?.data?.error || fallbackMsg
+        error:
+            err.response?.data?.error ||
+            err.response?.data?.message ||
+            err.message ||
+            fallbackMsg
     });
 };
 
 // ================= ROOT =================
 app.get("/", (req, res) => {
-    success(res, "API Gateway Running");
+    res.json({
+        success: true,
+        message: "Gateway Running"
+    });
 });
-
 app.get("/health", (req, res) => {
     success(res, "OK");
+});
+
+// METRICS ENDPOINT
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", client.register.contentType);
+    res.end(await client.register.metrics());
 });
 
 // ================= USER =================
@@ -446,7 +482,7 @@ app.post("/signup", async (req, res) => {
         const response = await requestWithRetry(() =>
             api.post(`${USER_SERVICE}/signup`, req.body)
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Signup failed");
     }
@@ -458,7 +494,7 @@ app.post("/login", async (req, res) => {
         const response = await requestWithRetry(() =>
             api.post(`${USER_SERVICE}/login`, req.body)
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Login failed");
     }
@@ -474,7 +510,7 @@ app.post("/posts", async (req, res) => {
                 headers: { Authorization: req.headers.authorization }
             })
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Create post failed");
     }
@@ -486,9 +522,51 @@ app.get("/posts", async (req, res) => {
         const response = await requestWithRetry(() =>
             api.get(`${POST_SERVICE}/posts`)
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Fetch posts failed");
+    }
+});
+
+// UPDATE POST
+app.put("/posts/:id", async (req, res) => {
+    try {
+        const response = await requestWithRetry(() =>
+            api.put(`${POST_SERVICE}/posts/${req.params.id}`, req.body, {
+                headers: { Authorization: req.headers.authorization }
+            })
+        );
+        res.json(response.data);
+    } catch (err) {
+        failure(res, err, "Update post failed");
+    }
+});
+
+// DELETE POST
+app.delete("/posts/:id", async (req, res) => {
+    try {
+        const response = await requestWithRetry(() =>
+            api.delete(`${POST_SERVICE}/posts/${req.params.id}`, {
+                headers: { Authorization: req.headers.authorization }
+            })
+        );
+        res.json(response.data);
+    } catch (err) {
+        failure(res, err, "Delete post failed");
+    }
+});
+
+// GET MY POSTS
+app.get("/my-posts", async (req, res) => {
+    try {
+        const response = await requestWithRetry(() =>
+            api.get(`${POST_SERVICE}/my-posts`, {
+                headers: { Authorization: req.headers.authorization }
+            })
+        );
+        res.json(response.data);
+    } catch (err) {
+        failure(res, err, "Fetch my posts failed");
     }
 });
 
@@ -502,12 +580,11 @@ app.get("/posts/:id", async (req, res) => {
             requestWithRetry(() => api.get(`${COMMENT_SERVICE}/comments/${id}`))
         ]);
 
-        const post =
-            postRes.status === "fulfilled" ? postRes.value.data : null;
+        const post =postRes.status === "fulfilled"? postRes.value.data.data: null;
 
         const comments =
             commentRes.status === "fulfilled"
-                ? commentRes.value.data
+                ? commentRes.value.data.data
                 : [];
 
         if (!post) {
@@ -535,7 +612,7 @@ app.post("/comments", async (req, res) => {
                 headers: { Authorization: req.headers.authorization }
             })
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Create comment failed");
     }
@@ -547,7 +624,7 @@ app.get("/comments/:id", async (req, res) => {
         const response = await requestWithRetry(() =>
             api.get(`${COMMENT_SERVICE}/comments/${req.params.id}`)
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Fetch comments failed");
     }
@@ -561,7 +638,7 @@ app.delete("/comments/:id", async (req, res) => {
                 headers: { Authorization: req.headers.authorization }
             })
         );
-        success(res, response.data);
+        res.json(response.data);
     } catch (err) {
         failure(res, err, "Delete failed");
     }
@@ -573,3 +650,44 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
     logger.info(`Gateway running on port ${PORT}`);
 });
+
+// // ui routes
+// app.get("/new", (req, res) => {
+//     res.render("new");
+// });
+// //create post
+// app.post("/new", async (req, res) => {
+//     try{
+//         const response = await api.post(`${POST_SERVICE}/posts`, req.body);
+//         res.redirect("/");
+//     }catch(err){
+//         failure(res, err, "Post creation failed");
+//     }
+// });
+// //edit
+// app.get("/edit/:id", async (req, res) => {
+//     try {
+//         const response = await api.get(`${POST_SERVICE}/posts/${req.params.id}`);
+//         res.render("edit", { post: response.data.data });
+//     } catch (err) {
+//         res.send("Error loading post");
+//     }
+// });
+// //update post
+// app.post("/edit/:id", async (req, res) => {
+//     try {
+//         await api.put(`${POST_SERVICE}/posts/${req.params.id}`, req.body);
+//         res.redirect("/");
+//     } catch (err) {
+//         res.send("Update failed");
+//     }
+// });
+// //delete post
+// app.get("/delete/:id", async (req, res) => {
+//     try {
+//         await api.delete(`${POST_SERVICE}/posts/${req.params.id}`);
+//         res.redirect("/");
+//     } catch (err) {
+//         res.send("Delete failed");
+//     }
+// });

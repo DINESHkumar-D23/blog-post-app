@@ -128,37 +128,41 @@
 // app.listen(PORT, "0.0.0.0", () => {
 //     console.log(`Comment Service running on port ${PORT}`);
 // });
+
 import express from "express";
 import dotenv from "dotenv";
 import pkg from "pg";
 import jwt from "jsonwebtoken";
 import logger from "./utils/logger.js";
+import client from "prom-client";
 
 dotenv.config();
 
-const { Client } = pkg;
+const { Pool } = pkg;
 
 const app = express();
 app.use(express.json());
+// ================= METRICS =================
+client.collectDefaultMetrics();
 
+const httpRequests = new client.Counter({
+    name: "http_requests_total",
+    help: "Total number of HTTP requests"
+});
+//logger middleware
+app.use((req, res, next) => {
+    httpRequests.inc();
+    logger.info(`${req.method} - ${req.url}`);
+    next();
+});
 // ================= DB =================
-const db = new Client({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
+const db = new Pool({
+    user: "postgres",
+    host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+    database: "blog_db",
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
     port: 5432,
 });
-
-const connectDB = async () => {
-    try {
-        await db.connect();
-        logger.info("Comment Service DB Connected");
-    } catch (err) {
-        logger.error("DB Connection Failed: " + err.message);
-    }
-};
-
 // ================= AUTH =================
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -173,7 +177,7 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
         req.user = decoded;
         next();
     } catch (err) {
@@ -208,6 +212,12 @@ app.get("/", (req, res) => {
 // HEALTH
 app.get("/health", (req, res) => {
     success(res, "OK");
+});
+
+// METRICS ENDPOINT
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", client.register.contentType);
+    res.end(await client.register.metrics());
 });
 
 // CREATE COMMENT
@@ -273,5 +283,5 @@ const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", async () => {
     logger.info(`Comment Service running on port ${PORT}`);
-    await connectDB();
+
 });

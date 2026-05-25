@@ -18,6 +18,9 @@ services:
     ports:
       - "3000:3000"
     environment:
+      DB_HOST: 34.14.202.110
+      DB_USER: postgres
+      DB_NAME: blog_db
       DB_PASSWORD: DinK@23
       JWT_SECRET: secretkey
     depends_on:
@@ -28,6 +31,9 @@ services:
     ports:
       - "4000:4000"
     environment:
+      DB_HOST: 34.14.202.110
+      DB_USER: postgres
+      DB_NAME: blog_db
       DB_PASSWORD: DinK@23
       JWT_SECRET: secretkey
     depends_on:
@@ -38,6 +44,9 @@ services:
     ports:
       - "6000:6000"
     environment:
+      DB_HOST: 34.14.202.110
+      DB_USER: postgres
+      DB_NAME: blog_db
       DB_PASSWORD: DinK@23
       JWT_SECRET: secretkey
     depends_on:
@@ -57,3 +66,12 @@ services:
     container_name: redis_cache
     ports:
       - "6379:6379"
+
+  ui:
+    build: ./ui
+    ports:
+      - "3001:3000"
+    environment:
+      VITE_API_URL: https://gateway-311221747660.asia-south1.run.app
+    depends_on:
+      - gateway

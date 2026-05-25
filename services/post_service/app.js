@@ -294,31 +294,35 @@ import dotenv from "dotenv";
 import pkg from "pg";
 import jwt from "jsonwebtoken";
 import logger from "./utils/logger.js";
+import client from "prom-client";
 
 dotenv.config();
 
-const { Client } = pkg;
+const { Pool } = pkg;
 
 const app = express();
 app.use(express.json());
+// ================= METRICS =================
+client.collectDefaultMetrics();
 
+const httpRequests = new client.Counter({
+    name: "http_requests_total",
+    help: "Total number of HTTP requests"
+});
+//logger middleware
+app.use((req, res, next) => {
+    httpRequests.inc();
+    logger.info(`${req.method} - ${req.url}`);
+    next();
+});
 // ================= DB =================
-const db = new Client({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
+const db = new Pool({
+    user: "postgres",
+    host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+    database: "blog_db",
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
     port: 5432,
 });
-
-const connectDB = async () => {
-    try {
-        await db.connect();
-        logger.info("Post Service DB Connected");
-    } catch (err) {
-        logger.error("DB Connection Failed: " + err.message);
-    }
-};
 
 // ================= AUTH =================
 const authMiddleware = (req, res, next) => {
@@ -334,7 +338,7 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
         req.user = decoded;
         next();
     } catch (err) {
@@ -371,9 +375,15 @@ app.get("/health", (req, res) => {
     success(res, "OK");
 });
 
+// METRICS ENDPOINT
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", client.register.contentType);
+    res.end(await client.register.metrics());
+});
+
 // CREATE POST
 app.post("/posts", authMiddleware, async (req, res) => {
-    const { title, content } = req.body;
+    const { title, content, image_url, tags, category } = req.body;
 
     if (!title || !content) {
         return res.status(400).json({
@@ -384,8 +394,8 @@ app.post("/posts", authMiddleware, async (req, res) => {
 
     try {
         const result = await db.query(
-            "INSERT INTO posts (title, content, author_id) VALUES ($1, $2, $3) RETURNING *",
-            [title, content, req.user.id]
+            "INSERT INTO posts (title, content, author_id, image_url, tags, category) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            [title, content, req.user.id, image_url || null, tags || null, category || null]
         );
 
         success(res, result.rows[0]);
@@ -490,5 +500,4 @@ const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", async () => {
     logger.info(`Post Service running on port ${PORT}`);
-    await connectDB();
 });

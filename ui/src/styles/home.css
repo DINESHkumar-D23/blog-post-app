@@ -1,0 +1,231 @@
+/* ══════════════════════════════════════════
+   NEO-BRUTALISM HOME PAGE
+   Palette: #FAF3E1 · #F5E7C6 · #FF6D1F · #222222
+══════════════════════════════════════════ */
+
+.home-page {
+  background: var(--cream-light);
+  min-height: 100vh;
+  color: var(--black);
+}
+
+/* ═══ POSTS SECTION ═══ */
+.posts-section {
+  position: relative;
+  padding: 80px 0 100px;
+  background: var(--cream-light);
+}
+
+/* Decorative thick border line at top of section */
+.posts-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--black) 0px,
+    var(--black) 40px,
+    var(--orange) 40px,
+    var(--orange) 80px
+  );
+}
+
+.posts-container {
+  width: min(1400px, 92%);
+  margin: 0 auto;
+}
+
+/* ═══ HEADER ═══ */
+.posts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 60px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.posts-header-content h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1;
+  margin-bottom: 12px;
+  color: var(--black);
+  font-weight: 900;
+  letter-spacing: -2px;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+}
+
+/* Underline accent */
+.posts-header-content h2::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60%;
+  height: 5px;
+  background: var(--orange);
+}
+
+.posts-subtitle {
+  color: rgba(34, 34, 34, 0.62);
+  font-size: 1rem;
+  max-width: 560px;
+  margin-top: 18px;
+  font-family: var(--font-body);
+}
+
+/* ═══ BUTTONS ═══ */
+.refresh-btn,
+.retry-btn {
+  border: var(--border);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  border-radius: 4px;
+}
+
+.refresh-btn {
+  padding: 12px 22px;
+  background: var(--cream-mid);
+  color: var(--black);
+  box-shadow: var(--shadow-brutal);
+}
+
+.refresh-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal-lg);
+}
+
+.refresh-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.retry-btn {
+  background: var(--orange);
+  color: var(--white);
+  padding: 10px 18px;
+  box-shadow: var(--shadow-brutal);
+}
+
+.retry-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal-lg);
+}
+
+/* ═══ ERROR ═══ */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+  background: #ffecec;
+  border: var(--border);
+  border-left: 6px solid #e53e3e;
+  box-shadow: var(--shadow-brutal);
+  color: #c53030;
+  border-radius: var(--radius-sm);
+}
+
+.error-content {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.error-content p {
+  font-weight: 600;
+  color: #c53030;
+}
+
+.error-icon {
+  font-size: 1.4rem;
+}
+
+/* ═══ POSTS GRID ═══ */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+
+/* ═══ LOADING ═══ */
+.loading-spinner {
+  padding: 120px 20px;
+  text-align: center;
+}
+
+.spinner {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  border: 4px solid var(--cream-mid);
+  border-top-color: var(--orange);
+  animation: spin 0.85s linear infinite;
+}
+
+.spinner-small {
+  display: inline-block;
+}
+
+
+/* ═══ EMPTY STATE ═══ */
+.no-posts {
+  padding: 80px 20px;
+  text-align: center;
+  background: var(--cream-mid);
+  border: var(--border);
+  box-shadow: var(--shadow-brutal-lg);
+  border-radius: var(--radius-sm);
+}
+
+.no-posts-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.no-posts-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--black);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+
+.no-posts-subtitle {
+  color: rgba(34, 34, 34, 0.6);
+  font-size: 1rem;
+  margin-top: 12px;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .posts-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .posts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .posts-section {
+    padding: 60px 0 80px;
+  }
+}

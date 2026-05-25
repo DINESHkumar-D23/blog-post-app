@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "gateway"
+    scheme: https
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["gateway-311221747660.asia-south1.run.app"]
+
+  - job_name: "user-service"
+    scheme: https
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["user-service-311221747660.asia-south1.run.app"]
+
+  - job_name: "post-service"
+    scheme: https
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["post-service-311221747660.asia-south1.run.app"]
+
+  - job_name: "comment-service"
+    scheme: https
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["comment-service-311221747660.asia-south1.run.app"]

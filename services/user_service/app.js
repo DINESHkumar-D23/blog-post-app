@@ -144,32 +144,36 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import pkg from "pg";
 import logger from "./utils/logger.js";
+import client from "prom-client";
 
 dotenv.config();
 
-const { Client } = pkg;
+const { Pool } = pkg;
 
 const app = express();
 app.use(express.json());
+// ================= METRICS =================
+client.collectDefaultMetrics();
 
-// ================= DB =================
-const db = new Client({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: 5432,
+const httpRequests = new client.Counter({
+    name: "http_requests_total",
+    help: "Total number of HTTP requests"
+});
+//logger middleware
+app.use((req, res, next) => {
+    httpRequests.inc();
+    logger.info(`${req.method} - ${req.url}`);
+    next();
 });
 
-const connectDB = async () => {
-    try {
-        await db.connect();
-        logger.info("User Service DB Connected");
-    } catch (err) {
-        logger.error("DB Connection Failed: " + err.message);
-    }
-};
-
+// ================= DB =================
+const db = new Pool({
+    user: "postgres",
+    host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+    database: "blog_db",
+    password: process.env.DB_PASSWORD,
+    port: 5432,
+});
 // ================= RESPONSE HELPERS =================
 const success = (res, data) => {
     res.json({ success: true, data, error: null });
@@ -198,7 +202,7 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
         req.user = decoded;
         next();
     } catch (err) {
@@ -219,6 +223,12 @@ app.get("/", (req, res) => {
 // HEALTH
 app.get("/health", (req, res) => {
     success(res, "OK");
+});
+
+// METRICS ENDPOINT
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", client.register.contentType);
+    res.end(await client.register.metrics());
 });
 
 // SIGNUP
@@ -291,7 +301,7 @@ app.post("/login", async (req, res) => {
 
         const token = jwt.sign(
             { id: user.id, email: user.email },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || "secretkey",
             { expiresIn: "1d" }
         );
 
@@ -328,5 +338,4 @@ const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, "0.0.0.0", async () => {
     logger.info(`User Service running on port ${PORT}`);
-    await connectDB();
 });

@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Syne:wght@700;800;900&display=swap');
+
+/* ═══════════════════════════════════════════
+   NEO-BRUTALISM DESIGN SYSTEM
+   Palette: #FAF3E1 · #F5E7C6 · #FF6D1F · #222222
+═══════════════════════════════════════════ */
+:root {
+  --cream-light: #FAF3E1;
+  --cream-mid:   #F5E7C6;
+  --orange:      #FF6D1F;
+  --orange-dark: #e55a0a;
+  --black:       #222222;
+  --white:       #FFFFFF;
+
+  /* Derived tones */
+  --cream-shadow:  #ddd0a8;
+  --orange-glow:   rgba(255, 109, 31, 0.25);
+  --black-alpha:   rgba(34, 34, 34, 0.08);
+
+  /* Neo-brutalism borders — thick, solid, no rounded softness */
+  --border: 3px solid var(--black);
+  --border-sm: 2px solid var(--black);
+  --shadow-brutal: 5px 5px 0px var(--black);
+  --shadow-brutal-lg: 8px 8px 0px var(--black);
+  --shadow-brutal-orange: 5px 5px 0px var(--orange);
+  --shadow-hover: 2px 2px 0px var(--black);
+
+  /* Radius — neo-brutalism uses flat or very slight rounding */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  /* Typography */
+  --font-heading: 'Syne', 'Space Grotesk', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--cream-light);
+  color: var(--black);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream-light);
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* ── Typography ── */
+h1 {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--black);
+  /* NOTE: letter-spacing is intentionally NOT set globally — each page controls its own */
+}
+h2 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--black);
+}
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--black);
+}
+
+/* ── Global Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  border: var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-primary {
+  background: var(--orange);
+  color: var(--white);
+  box-shadow: var(--shadow-brutal);
+  border-radius: var(--radius-sm);
+}
+
+.btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal-lg);
+}
+
+.btn-primary:active {
+  transform: translate(3px, 3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-secondary {
+  background: var(--cream-mid);
+  color: var(--black);
+  box-shadow: var(--shadow-brutal);
+  border-radius: var(--radius-sm);
+}
+
+.btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal-lg);
+}
+
+/* ── Cards (generic utility class) ── */
+.card {
+  background: var(--cream-mid);
+  border: var(--border);
+  box-shadow: var(--shadow-brutal);
+  border-radius: var(--radius-sm);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-brutal-lg);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--cream-mid); }
+::-webkit-scrollbar-thumb {
+  background: var(--black);
+  border: 2px solid var(--cream-mid);
+}
+
+/* ── Error / Success Banners ── */
+.error-banner {
+  background: #ffecec;
+  border: var(--border);
+  border-left: 6px solid #e53e3e;
+  color: #c53030;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-brutal);
+  border-radius: var(--radius-sm);
+}
+
+.error-banner button {
+  background: #e53e3e;
+  color: white;
+  border: var(--border-sm);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: var(--font-body);
+  transition: all 0.1s ease;
+}
+
+.error-banner button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal);
+}
+
+.success-banner {
+  background: #e6ffed;
+  border: var(--border);
+  border-left: 6px solid #38a169;
+  color: #276749;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.error-message {
+  background: #ffecec;
+  border: var(--border-sm);
+  border-left: 5px solid #e53e3e;
+  color: #c53030;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.success-message {
+  background: #e6ffed;
+  border: var(--border-sm);
+  border-left: 5px solid #38a169;
+  color: #276749;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Loading Spinner ── */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--cream-mid);
+  border-top: 4px solid var(--orange);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner + p {
+  font-size: 1rem;
+  color: var(--black);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.no-posts {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--black);
+}
+
+.no-posts p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ── Noise texture overlay for brutalist grit ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.03'/></svg>");
+}
+
+@media (max-width: 768px) {
+  .main-content { padding: 0; }
+  .error-banner, .success-banner { margin-bottom: 1.25rem; padding: 1rem; }
+  .loading-spinner { padding: 3rem 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  .error-banner { flex-direction: column; gap: 1rem; }
+  .error-banner button { width: 100%; }
+  .loading-spinner { padding: 2rem 1rem; }
+  .spinner { width: 38px; height: 38px; border-width: 3px; }
+}
