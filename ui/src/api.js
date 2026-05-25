@@ -4,7 +4,7 @@ import axios from "axios";
 // For development, you can use a local gateway or the Cloud Run URL
 const API_BASE_URL = 
   import.meta.env.VITE_API_URL || 
-  "https://gateway-311221747660.asia-south1.run.app";
+  "https://blog-gateway.onrender.com";
 
 const API = axios.create({
   baseURL: API_BASE_URL,

@@ -1,106 +1,29 @@
-name: Deploy to Cloud Run
+name: Deploy to Render (via Git Push)
+
+# Render auto-deploys from GitHub on every push to main.
+# This workflow just validates the build so you catch errors early.
 
 on:
   push:
     branches:
       - main
 
-env:
-  PROJECT_ID: blogapp-495814
-  REGION: asia-south1
-
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Authenticate GCP
-        uses: google-github-actions/auth@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          credentials_json: ${{ secrets.GCP_KEY }}
+          node-version: '18'
 
-      - name: Configure Docker
-        run: gcloud auth configure-docker
-        
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
-      # ===== USER SERVICE =====
-      - name: Build User Service
+      - name: Validate UI build
         run: |
-          docker build -t gcr.io/$PROJECT_ID/user-service ./services/user_service
-          docker push gcr.io/$PROJECT_ID/user-service
-
-      - name: Deploy User Service
-        run: |
-          gcloud run deploy user-service \
-          --image gcr.io/$PROJECT_ID/user-service \
-          --region $REGION \
-          --platform managed \
-          --allow-unauthenticated \
-          --set-env-vars DB_HOST=${{ secrets.DB_HOST }},DB_USER=postgres,DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=blog_db,JWT_SECRET=secretkey
-
-      # ===== POST SERVICE =====
-      - name: Build Post Service
-        run: |
-          docker build -t gcr.io/$PROJECT_ID/post-service ./services/post_service
-          docker push gcr.io/$PROJECT_ID/post-service
-
-      - name: Deploy Post Service
-        run: |
-          gcloud run deploy post-service \
-          --image gcr.io/$PROJECT_ID/post-service \
-          --region $REGION \
-          --platform managed \
-          --allow-unauthenticated \
-          --set-env-vars DB_HOST=${{ secrets.DB_HOST }},DB_USER=postgres,DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=blog_db,JWT_SECRET=secretkey
-
-      # ===== COMMENT SERVICE =====
-      - name: Build Comment Service
-        run: |
-          docker build -t gcr.io/$PROJECT_ID/comment-service ./services/comment_service
-          docker push gcr.io/$PROJECT_ID/comment-service
-
-      - name: Deploy Comment Service
-        run: |
-          gcloud run deploy comment-service \
-          --image gcr.io/$PROJECT_ID/comment-service \
-          --region $REGION \
-          --platform managed \
-          --allow-unauthenticated \
-          --set-env-vars DB_HOST=${{ secrets.DB_HOST }},DB_USER=postgres,DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=blog_db,JWT_SECRET=secretkey
-
-      # ===== GATEWAY =====
-      - name: Build Gateway
-        run: |
-          docker build -t gcr.io/$PROJECT_ID/gateway ./gateway
-          docker push gcr.io/$PROJECT_ID/gateway
-
-      - name: Deploy Gateway
-        run: |
-          gcloud run deploy gateway \
-          --image gcr.io/$PROJECT_ID/gateway \
-          --region $REGION \
-          --platform managed \
-          --allow-unauthenticated \
-          --set-env-vars=USER_SERVICE_URL=${{ secrets.USER_SERVICE_URL }},POST_SERVICE_URL=${{ secrets.POST_SERVICE_URL }},COMMENT_SERVICE_URL=${{ secrets.COMMENT_SERVICE_URL }}
-
-      # ===== BLOG UI =====
-      - name: Build Blog UI
-        run: |
-          docker build \
-            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
-            -t gcr.io/$PROJECT_ID/blog-ui ./ui
-          docker push gcr.io/$PROJECT_ID/blog-ui
-
-      - name: Deploy Blog UI
-        run: |
-          gcloud run deploy blog-ui \
-          --image gcr.io/$PROJECT_ID/blog-ui \
-          --region $REGION \
-          --platform managed \
-          --allow-unauthenticated \
-          --port 3000
+          cd ui
+          npm ci
+          npm run build
+        env:
+          VITE_API_URL: https://blog-gateway.onrender.com

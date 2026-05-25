@@ -168,11 +168,10 @@ app.use((req, res, next) => {
 
 // ================= DB =================
 const db = new Pool({
-    user: "postgres",
-    host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
-    database: "blog_db",
-    password: process.env.DB_PASSWORD,
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL?.includes('sslmode=require') || process.env.DATABASE_URL?.includes('neon')
+        ? { rejectUnauthorized: false }
+        : false,
 });
 // ================= RESPONSE HELPERS =================
 const success = (res, data) => {

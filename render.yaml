@@ -1,0 +1,81 @@
+services:
+
+  # ─── USER SERVICE ────────────────────────────────────────
+  - type: web
+    name: blog-user-service
+    env: docker
+    dockerfilePath: ./services/user_service/Dockerfile
+    dockerContext: ./services/user_service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false        # Set in Render dashboard
+      - key: JWT_SECRET
+        value: secretkey
+      - key: PORT
+        value: 8080
+
+  # ─── POST SERVICE ─────────────────────────────────────────
+  - type: web
+    name: blog-post-service
+    env: docker
+    dockerfilePath: ./services/post_service/Dockerfile
+    dockerContext: ./services/post_service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false        # Set in Render dashboard
+      - key: JWT_SECRET
+        value: secretkey
+      - key: PORT
+        value: 8080
+
+  # ─── COMMENT SERVICE ──────────────────────────────────────
+  - type: web
+    name: blog-comment-service
+    env: docker
+    dockerfilePath: ./services/comment_service/Dockerfile
+    dockerContext: ./services/comment_service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false        # Set in Render dashboard
+      - key: JWT_SECRET
+        value: secretkey
+      - key: PORT
+        value: 8080
+
+  # ─── API GATEWAY ──────────────────────────────────────────
+  - type: web
+    name: blog-gateway
+    env: docker
+    dockerfilePath: ./gateway/Dockerfile
+    dockerContext: ./gateway
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: USER_SERVICE_URL
+        value: https://blog-user-service.onrender.com
+      - key: POST_SERVICE_URL
+        value: https://blog-post-service.onrender.com
+      - key: COMMENT_SERVICE_URL
+        value: https://blog-comment-service.onrender.com
+      - key: PORT
+        value: 8080
+
+  # ─── BLOG UI (Static Site) ────────────────────────────────
+  - type: web
+    name: blog-ui
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    rootDir: ui
+    buildFilter:
+      paths:
+        - ui/**
+    envVars:
+      - key: VITE_API_URL
+        value: https://blog-gateway.onrender.com
