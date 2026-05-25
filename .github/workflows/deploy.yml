@@ -87,3 +87,20 @@ jobs:
           --platform managed \
           --allow-unauthenticated \
           --set-env-vars=USER_SERVICE_URL=${{ secrets.USER_SERVICE_URL }},POST_SERVICE_URL=${{ secrets.POST_SERVICE_URL }},COMMENT_SERVICE_URL=${{ secrets.COMMENT_SERVICE_URL }}
+
+      # ===== BLOG UI =====
+      - name: Build Blog UI
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t gcr.io/$PROJECT_ID/blog-ui ./ui
+          docker push gcr.io/$PROJECT_ID/blog-ui
+
+      - name: Deploy Blog UI
+        run: |
+          gcloud run deploy blog-ui \
+          --image gcr.io/$PROJECT_ID/blog-ui \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 3000
