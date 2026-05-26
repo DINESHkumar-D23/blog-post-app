@@ -25,6 +25,9 @@ CI/CD with GitHub Actions
 Google Cloud Run Deployment
 Monitoring with Prometheus & Grafana
 
+## NOTE
+      The project is currently deployed in free using neon and render .
+
 Scalable & Production-Ready Design
 ---
 
@@ -81,14 +84,6 @@ The backend is split into independently scalable services:
 
 ---
 
-# Getting Started
-
-Want to run this locally? It's easy!
-
-# Prerequisites
-- [Node.js](https://nodejs.org/) (v16 or higher recommended)
-- [Docker](https://www.docker.com/) & Docker Compose (if you want to spin up the whole stack easily)
-
 # Quick Start (Frontend Only)
 
 If you just want to run the UI against the deployed backend:
@@ -113,4 +108,11 @@ To spin up all microservices, databases, and the UI:
 # Start everything using Docker Compose
 docker-compose up --build
 ```
+
+
+## ARCHITECTURE FLOW CHART
+<img width="1536" height="1024" alt="ChatGPT Image May 26, 2026, 08_34_17 PM" src="https://github.com/user-attachments/assets/9137f18f-a579-43d8-abc3-7efe723dc2d6" />
+
+
+
 *Built with ❤️ for the modern web.*
