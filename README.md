@@ -113,6 +113,7 @@ docker-compose up --build
 ## ARCHITECTURE FLOW CHART
 <img width="1536" height="1024" alt="ChatGPT Image May 26, 2026, 08_34_17 PM" src="https://github.com/user-attachments/assets/9137f18f-a579-43d8-abc3-7efe723dc2d6" />
 
+https://github.com/user-attachments/assets/6e47199e-d36d-4d2f-afb3-71f6febb0283
 
 
 *Built with ❤️ for the modern web.*
