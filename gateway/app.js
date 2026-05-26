@@ -407,10 +407,11 @@ app.use((req, res, next) => {
 
 // ================= RATE LIMIT =================
 app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
+    windowMs: 15 * 60 * 1000,  // 15 minutes
+    max: 500,                   // raised from 100 → 500 (avoids 429 on cold starts & retries)
+    standardHeaders: true,
+    legacyHeaders: false,
 }));
-
 // ================= ENV =================
 const USER_SERVICE = process.env.USER_SERVICE_URL;
 const POST_SERVICE = process.env.POST_SERVICE_URL;
